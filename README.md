@@ -75,3 +75,11 @@ Once credentials are saved, open the n8n Chat UI window in the bottom corner and
 > *"Hey, search the test vector store and tell me what trial data blocks are inside."*
 
 Watch the execution paths flash on your canvas as Groq automatically picks up your custom Qdrant tool description, computes embeddings via Ollama, pulls the vector nodes, and references past interaction records inside Supabase!
+
+## 👤 Author
+
+[**Prigeesh**](https://github.com/Sai-guru)
+
+Arch Linux | n8n | Docker | PostgreSQL | Qdrant Vector Store | Ollama | Groq
+
+Always fell free to discuss...
