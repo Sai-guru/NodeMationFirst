@@ -1,19 +1,77 @@
-# Self-Hosted AI Agent with Vector Memory (RAG Pipeline)
+# Self-Hosted Hybrid AI Agent with Cloud Memory & Vector Retrieval
 
-An end-to-end Retrieval-Augmented Generation (RAG) pipeline built using n8n, Groq, Ollama, and Qdrant. 
+An advanced, hybrid RAG (Retrieval-Augmented Generation) pipeline built on n8n. This architecture leverages high-performance cloud APIs for reasoning and persistent memory, combined with completely free, self-hosted infrastructure for vector lookups and data processing.
 
-## 🚀 Architecture
-- **Orchestration:** n8n (Self-Hosted)
-- **LLM Brain:** Groq Chat Model (Ultra-fast execution)
-- **Embeddings:** Local Ollama Server
-- **Vector Store:** Qdrant (Handles semantic chunk retrieval)
+## 🧠 System Architecture
 
-## 📦 How to Use This Workflow
-1. Create a new, blank workflow in your n8n instance.
-2. Open the `workflow.json` file from this repository and copy the entire text content.
-3. Click anywhere on your n8n canvas and press `CMD+V` (Mac) or `CTRL+V` (Windows) to paste the entire node structure instantly.
+- **Orchestrator:** n8n (Self-Hosted via Docker)
+- **LLM Brain:** Groq Chat Model (`openai/gpt-oss-safeguard-20b` via Cloud API)
+- **Persistent Chat Memory:** Supabase PostgreSQL (Cloud Database Link)
+- **Vector Knowledge Base:** Qdrant Vector Store (Self-Hosted via Docker)
+- **Embedding Matrix Model:** Ollama running `llama3.2` (Self-Hosted via Docker)
 
-## ⚙️ Configuration Notes
-- **Ollama URL:** If running n8n via Docker, ensure your Ollama connection URL is set to `http://docker.internal` so n8n can route outside its container to hit your local desktop Ollama instance.
-- **Qdrant URL:** Use `http://docker.internal` for your local Qdrant container endpoint.
-- Ensure you set a descriptive string in the Qdrant Tool Node so the LLM agent understands when to execute the vector search.
+---
+
+## 🚀 Step-by-Step Deployment Guide
+
+Follow these exact steps to spin up the required local tools and import the workflow canvas.
+
+### Step 1: Spin Up the Local Tools Stack
+Instead of building a custom container environment from scratch, we use n8n's official local AI environment stack template to boot the underlying backend services:
+
+```bash
+# Clone the official starter infrastructure framework
+git clone https://github.com
+
+# Move into the stack folder
+cd self-hosted-ai-starter-kit
+
+# Boot up n8n, Qdrant, and Ollama in the background
+docker compose up -d
+```
+
+### Step 2: Download the Local Embedding Model
+Once Docker finishes starting up the containers, pull the exact embedding weights required by the n8n canvas:
+
+```bash
+docker exec -it ollama ollama run llama3.2
+```
+*(Note: If your container name differs based on your environment shell, verify it via `docker ps`)*
+
+### Step 3: Access your Automation Engine
+Open your web browser and navigate to your new locally hosted n8n instance dashboard:
+👉 **`http://localhost:5678`**
+
+### Step 4: Import the Workflow
+1. Open the **`workflow.json`** file included in this GitHub repository.
+2. Select and copy the entire raw text block.
+3. Go to your fresh n8n dashboard canvas, click anywhere on the empty grid background, and press **`CTRL + V`** (Windows) or **`CMD + V`** (Mac). 
+4. The complete AI pipeline structure will instantly appear on your screen!
+
+---
+
+## ⚙️ Mandatary External Credentials Configuration
+
+To wake the agent up, open the newly imported nodes on your canvas and plug in your external connection parameters:
+
+### 1. Groq Chat Model Node
+- **Setup:** Create a new credential under `Groq API`.
+- **Requirement:** Generate your API key at the [Groq Console](https://groq.com).
+
+### 2. Postgres Chat Memory Node
+- **Setup:** Create a new credential under `PostgreSQL`.
+- **Requirement:** Go to your **Supabase Dashboard** ➡️ **Project Settings** ➡️ **Database** ➡️ **Connection Info**.
+- **Fields Mapping:**
+  - **Host:** Copy your Supabase host endpoint.
+  - **Port:** `6543` *(Highly recommended: Use the transaction pooler port to maximize performance limits)*
+  - **User:** Your Supabase project DB user string.
+  - **Database:** `postgres`
+  - **SSL:** Toggle this **ON** (Supabase connection parameters strictly enforce SSL).
+
+---
+
+## 🧪 Testing the Pipeline
+Once credentials are saved, open the n8n Chat UI window in the bottom corner and submit:
+> *"Hey, search the test vector store and tell me what trial data blocks are inside."*
+
+Watch the execution paths flash on your canvas as Groq automatically picks up your custom Qdrant tool description, computes embeddings via Ollama, pulls the vector nodes, and references past interaction records inside Supabase!
